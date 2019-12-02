@@ -51,28 +51,10 @@ class ClientHandler extends Thread {
             String msgin = "";
             while (true) {
                 msgin = din.readUTF();
-                if (msgin.equals("list")) {
-                    dout.writeUTF(String.join(",", this.showFile()));
+                if (msgin.startsWith("download")) {
+                    dout.writeLong((new File("./SharedFolder/TempFile.txt")).length());
                     dout.flush();
-                } else if (msgin.startsWith("download")) {
-                    String fileName = msgin.substring(9);
-                    if (this.showFile().contains(fileName)) {
-                        dout.writeLong((new File("./src/Server/SharedFolder/" + fileName)).length());
-                        dout.flush();
-                        this.sendFile(fileName, dout);
-                    } else {
-                        dout.writeLong(0);
-                        System.out.println("File sending aborted");
-                    }
-                } else if (msgin.startsWith("upload")) {
-                    String fileName = msgin.substring(7);
-
-                    long fileSize = din.readLong();
-                    if (fileSize > 0) {
-                        this.saveFile(din, fileName, (int) fileSize);
-                    } else {
-                        System.out.println("File receiving aborted");
-                    }
+                    this.sendFile("TempFile.txt", dout);
                 } else if (msgin.equals("@logout")) {
                     clientSocket.close();
                 }
@@ -85,7 +67,7 @@ class ClientHandler extends Thread {
     }
 
     private void sendFile(String file, DataOutputStream dout) throws IOException {
-        FileInputStream fis = new FileInputStream("./src/Server/SharedFolder/" + file);
+        FileInputStream fis = new FileInputStream("./SharedFolder/" + file);
         byte[] buffer = new byte[4096];
 
         int count;
@@ -94,32 +76,5 @@ class ClientHandler extends Thread {
         }
 
         fis.close();
-    }
-
-    private void saveFile(DataInputStream din, String filename, int fileSize) throws Exception {
-        FileOutputStream fos = new FileOutputStream("./src/Server/SharedFolder/" + filename);
-        byte[] buffer = new byte[4096];
-
-        int read = 0;
-        int totalRead = 0;
-        int remaining = fileSize;
-        while ((read = din.read(buffer, 0, Math.min(buffer.length, remaining))) > 0) {
-            totalRead += read;
-            remaining -= read;
-            System.out.println("read " + totalRead + " bytes.");
-            fos.write(buffer, 0, read);
-        }
-        fos.close();
-    }
-
-    public ArrayList<String> showFile() {
-        File folder = new File("./src/Server/SharedFolder");
-        File[] listOfFiles = folder.listFiles();
-        ArrayList<String> files = new ArrayList<>();
-
-        for (int i = 0; i < listOfFiles.length; i++) {
-            files.add(listOfFiles[i].getName());
-        }
-        return files;
     }
 }
