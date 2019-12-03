@@ -53,7 +53,7 @@ public class Server {
     }
     private void sendFile(String file, DataOutputStream dout) throws IOException {
         FileInputStream fis = new FileInputStream("./SharedFolder/" + file);
-        byte[] buffer = new byte[4096];
+        byte[] buffer = new byte[32768];
 
         int count;
         while ((count = fis.read(buffer)) > 0) {

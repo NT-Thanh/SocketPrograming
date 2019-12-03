@@ -98,7 +98,7 @@ class ClientHandler extends Thread {
 
     private void saveFile(DataInputStream din, String filename, int fileSize) throws Exception {
         FileOutputStream fos = new FileOutputStream("./SharedFolder/" + filename);
-        byte[] buffer = new byte[4096];
+        byte[] buffer = new byte[32768];
 
         int read = 0;
         int totalRead = 0;
