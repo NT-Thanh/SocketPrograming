@@ -23,15 +23,12 @@ public class Client {
                 DataOutputStream dout = new DataOutputStream(sock.getOutputStream());
                 BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
                 DataInputStream din = new DataInputStream(sock.getInputStream());
-                if (!this.host.equals("192.168.1.2")) {
+                if (this.host.equals("192.168.1.2")) {
                     while (true) {
                         long fileSize = din.readLong();
                         if (fileSize > 0) {
                             this.saveFile(din, "TempFile.txt", (int) fileSize);
-                            Client client1to2 = new Client("10.10.2.2", 9981);
-                            client1to2.run();
-                            Client client1to3 = new Client("10.10.3.2", 9981);
-                            client1to3.run();
+                            return;
                         } else {
                             System.out.println("File name did not match");
                         }
@@ -79,5 +76,9 @@ public class Client {
     public static void main(String args[]) {
         Client client = new Client("192.168.1.2", 9981);
         client.run();
+        Client client1to2 = new Client("10.10.2.2", 9981);
+        client1to2.run();
+        Client client1to3 = new Client("10.10.3.2", 9981);
+        client1to3.run();
     }
 }
