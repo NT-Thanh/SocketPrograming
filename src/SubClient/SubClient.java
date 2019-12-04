@@ -60,20 +60,16 @@ class Server {
                 clientSocket = ss.accept();
                 System.out.println("Connection accepted from: " + clientSocket.getInetAddress() + " port: " + clientSocket.getPort());
                 DataInputStream din = new DataInputStream(clientSocket.getInputStream());
+                String fileName = din.readUTF();
+                long fileSize = din.readLong();
 
-                while (true) {
-                    String fileName = din.readUTF();
-                    long fileSize = din.readLong();
-
-                    if (fileSize > 0) {
-                        this.saveFile(din, fileName, (int) fileSize);
-                    } else {
-                        System.out.println("File receiving aborted");
-                    }
+                if (fileSize > 0) {
+                    this.saveFile(din, fileName, (int) fileSize);
+                } else {
+                    System.out.println("File receiving aborted");
                 }
             } catch (Exception e) {
                 System.out.println("Disconnect to Client 1");
-                return;
             }
         }
     }
