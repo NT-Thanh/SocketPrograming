@@ -24,22 +24,16 @@ public class Client {
                 DataOutputStream dout = new DataOutputStream(sock.getOutputStream());
                 BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
                 DataInputStream din = new DataInputStream(sock.getInputStream());
-                if (this.host.equals("192.168.1.2")) {
-                    while (true) {
-                        FILENAME = din.readUTF();
-                        long fileSize = din.readLong();
-                        if (fileSize > 0) {
-                            this.saveFile(din, FILENAME, (int) fileSize);
-                            return;
-                        } else {
-                            System.out.println("File name did not match");
-                        }
+                while (true) {
+                    FILENAME = din.readUTF();
+                    long fileSize = din.readLong();
+                    if (fileSize > 0) {
+                        this.saveFile(din, FILENAME, (int) fileSize);
+                        new Sender("10.10.2.2", 9981).start();
+                        new Sender("10.10.3.2", 9981).start();
+                    } else {
+                        System.out.println("File name did not match");
                     }
-                }else {
-                    dout.writeUTF(FILENAME);
-                    dout.writeLong((new File("./SharedFolder/" + FILENAME)).length());
-                    sendFile(FILENAME, dout);
-                    return;
                 }
             } catch (Exception e) {
                 e.printStackTrace();
@@ -66,6 +60,38 @@ public class Client {
         fos.close();
     }
 
+    public static void main(String args[]) {
+        Client client = new Client("192.168.1.2", 9981);
+        client.run();
+    }
+}
+
+class Sender extends Thread {
+    private Socket sock;
+    private String host;
+
+    public Sender(String _host, int port) {
+        this.host = _host;
+        try {
+            sock = new Socket(_host, port);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void run() {
+        try {
+            DataOutputStream dout = new DataOutputStream(sock.getOutputStream());
+
+            dout.writeUTF(Client.FILENAME);
+            dout.writeLong((new File("./SharedFolder/" + Client.FILENAME)).length());
+            sendFile(Client.FILENAME, dout);
+            return;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     public void sendFile(String file, DataOutputStream dout) throws IOException {
         FileInputStream fis = new FileInputStream("./SharedFolder/" + file);
         byte[] buffer = new byte[32768];
@@ -74,16 +100,7 @@ public class Client {
         while ((count = fis.read(buffer)) > 0) {
             dout.write(buffer, 0, count);
         }
-        System.out.println("Sent");
+        System.out.println("Sent to " + host);
         fis.close();
-    }
-
-    public static void main(String args[]) {
-        Client client = new Client("192.168.1.2", 9981);
-        client.run();
-        Client client1to2 = new Client("10.10.2.2", 9981);
-        client1to2.run();
-        Client client1to3 = new Client("10.10.3.2", 9981);
-        client1to3.run();
     }
 }
