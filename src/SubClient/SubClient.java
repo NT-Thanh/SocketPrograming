@@ -60,39 +60,21 @@ class Server {
             try {
                 clientSocket = ss.accept();
                 System.out.println("Connection accepted from: " + clientSocket.getInetAddress() + " port: " + clientSocket.getPort());
+                DataInputStream din = new DataInputStream(clientSocket.getInputStream());
+
+                while (true) {
+                    String fileName = din.readUTF();
+                    long fileSize = din.readLong();
+
+                    if (fileSize > 0) {
+                        this.saveFile(din, fileName, (int) fileSize);
+                    } else {
+                        System.out.println("File receiving aborted");
+                    }
+                }
             } catch (Exception e) {
                 e.printStackTrace();
             }
-            new ClientHandler(clientSocket).start();
-        }
-    }
-}
-
-class ClientHandler extends Thread {
-    protected Socket clientSocket;
-
-    ClientHandler(Socket _client) {
-        this.clientSocket = _client;
-    }
-
-    public void run() {
-        try {
-            DataInputStream din = new DataInputStream(clientSocket.getInputStream());
-
-            while (true) {
-                long fileSize = din.readLong();
-                if (fileSize > 0) {
-                    this.saveFile(din, "TempFile.txt", (int) fileSize);
-                } else {
-                    System.out.println("File receiving aborted");
-                }
-            }
-        } catch (SocketException se) {
-            System.out.println("Client Disconected");
-        } catch (EOFException se) {
-            System.out.println("Client goes offline");
-        } catch (Exception e) {
-            e.printStackTrace();
         }
     }
 

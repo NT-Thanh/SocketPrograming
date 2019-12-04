@@ -22,25 +22,53 @@ public class Server {
             clientSocket = ss.accept();
             System.out.println("Connection accepted from: " + clientSocket.getInetAddress() + " port: " + clientSocket.getPort());
 
+            new ClientHandler(clientSocket).start();
+        } catch (SocketException se) {
+            System.out.println("Client Disconected");
+        } catch (EOFException se) {
+            System.out.println("Client goes offline");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void main(String args[]) {
+        Server server = new Server();
+        server.run();
+    }
+}
+
+class ClientHandler extends Thread {
+    protected Socket clientSocket;
+
+    ClientHandler(Socket _client) {
+        this.clientSocket = _client;
+    }
+
+    public void run() {
+        try {
+
             DataInputStream din = new DataInputStream(clientSocket.getInputStream());
             DataOutputStream dout = new DataOutputStream(clientSocket.getOutputStream());
             BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
 
             String msgin = "", msgout = "";
             while (true) {
-                msgout = br.readLine();
-                if (msgout.startsWith("download")) {
-                    String fileName = msgout.substring(9);
-                    if (this.showFile().contains(fileName)) {
-                        dout.writeLong((new File("./SharedFolder/" + fileName)).length());
-                        dout.flush();
-                        this.sendFile(fileName, dout);
-                    } else {
-                        dout.writeLong(0);
-                        System.out.println("File sending aborted");
+                if (clientSocket.getInetAddress().toString().equals("/10.10.1.2")) {
+                    msgout = br.readLine();
+                    if (msgout.startsWith("download")) {
+                        String fileName = msgout.substring(9);
+                        if (this.showFile().contains(fileName)) {
+                            dout.writeUTF(fileName);
+                            dout.writeLong((new File("./SharedFolder/" + fileName)).length());
+                            dout.flush();
+                            this.sendFile(fileName, dout);
+                        } else {
+                            System.out.println("Wrong file name, File sending aborted");
+                        }
+                    } else if (msgout.equals("@logout")) {
+                        clientSocket.close();
                     }
-                } else if (msgout.equals("@logout")) {
-                    clientSocket.close();
                 }
             }
         } catch (SocketException se) {
@@ -51,6 +79,7 @@ public class Server {
             e.printStackTrace();
         }
     }
+
     private void sendFile(String file, DataOutputStream dout) throws IOException {
         FileInputStream fis = new FileInputStream("./SharedFolder/" + file);
         byte[] buffer = new byte[32768];
@@ -71,10 +100,5 @@ public class Server {
             files.add(listOfFiles[i].getName());
         }
         return files;
-    }
-
-    public static void main(String args[]) {
-        Server server = new Server();
-        server.run();
     }
 }

@@ -7,6 +7,7 @@ import java.util.ArrayList;
 public class Client {
     private Socket sock;
     private String host;
+    public static String FILENAME;
 
     public Client(String _host, int port) {
         this.host = _host;
@@ -25,16 +26,20 @@ public class Client {
                 DataInputStream din = new DataInputStream(sock.getInputStream());
                 if (this.host.equals("192.168.1.2")) {
                     while (true) {
+                        FILENAME = din.readUTF();
                         long fileSize = din.readLong();
                         if (fileSize > 0) {
-                            this.saveFile(din, "TempFile.txt", (int) fileSize);
+                            this.saveFile(din, FILENAME, (int) fileSize);
                             return;
                         } else {
                             System.out.println("File name did not match");
                         }
                     }
                 }else {
-                    sendFile("TempFile.txt", dout);
+                    dout.writeUTF(FILENAME);
+                    dout.writeLong((new File("./SharedFolder/" + FILENAME)).length());
+                    sendFile(FILENAME, dout);
+                    return;
                 }
             } catch (Exception e) {
                 e.printStackTrace();
@@ -43,7 +48,7 @@ public class Client {
     }
 
     private void saveFile(DataInputStream din, String filename, int fileSize) throws Exception {
-        FileOutputStream fos = new FileOutputStream("./" + filename);
+        FileOutputStream fos = new FileOutputStream("./SharedFolder/" + filename);
         byte[] buffer = new byte[32768];
 
         int read = 0;
