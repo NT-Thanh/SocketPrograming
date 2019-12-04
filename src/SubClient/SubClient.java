@@ -15,16 +15,15 @@ public class SubClient {
     }
 
     public void run() {
-        while (true) {
-            try {
-                DataInputStream din = new DataInputStream(sock.getInputStream());
+        try {
+            DataInputStream din = new DataInputStream(sock.getInputStream());
 
-                while (true) {
-                    long fileSize = din.readLong();
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
+            while (true) {
+                long fileSize = din.readLong();
             }
+        } catch (Exception e) {
+            System.out.println("Disconnect to FileServer");
+            return;
         }
     }
 
@@ -73,7 +72,8 @@ class Server {
                     }
                 }
             } catch (Exception e) {
-                e.printStackTrace();
+                System.out.println("Disconnect to Client 1");
+                return;
             }
         }
     }

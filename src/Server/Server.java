@@ -18,17 +18,19 @@ public class Server {
     }
 
     public void run() {
-        try {
-            clientSocket = ss.accept();
-            System.out.println("Connection accepted from: " + clientSocket.getInetAddress() + " port: " + clientSocket.getPort());
+        while(true){
+            try {
+                clientSocket = ss.accept();
+                System.out.println("Connection accepted from: " + clientSocket.getInetAddress() + " port: " + clientSocket.getPort());
 
-            new ClientHandler(clientSocket).start();
-        } catch (SocketException se) {
-            System.out.println("Client Disconected");
-        } catch (EOFException se) {
-            System.out.println("Client goes offline");
-        } catch (Exception e) {
-            e.printStackTrace();
+                new ClientHandler(clientSocket).start();
+            } catch (SocketException se) {
+                System.out.println("Client Disconnected");
+            } catch (EOFException se) {
+                System.out.println("Client goes offline");
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
     }
 
@@ -63,6 +65,8 @@ class ClientHandler extends Thread {
                             dout.writeLong((new File("./SharedFolder/" + fileName)).length());
                             dout.flush();
                             this.sendFile(fileName, dout);
+                            System.out.println("Sent to Client 1");
+                            return;
                         } else {
                             System.out.println("Wrong file name, File sending aborted");
                         }
@@ -72,7 +76,7 @@ class ClientHandler extends Thread {
                 }
             }
         } catch (SocketException se) {
-            System.out.println("Client Disconected");
+            System.out.println("Client Disconnected");
         } catch (EOFException se) {
             System.out.println("Client goes offline");
         } catch (Exception e) {
