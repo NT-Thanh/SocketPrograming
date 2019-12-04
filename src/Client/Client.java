@@ -21,8 +21,6 @@ public class Client {
     public void run() {
         while (true) {
             try {
-                DataOutputStream dout = new DataOutputStream(sock.getOutputStream());
-                BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
                 DataInputStream din = new DataInputStream(sock.getInputStream());
                 while (true) {
                     FILENAME = din.readUTF();
@@ -31,12 +29,12 @@ public class Client {
                         this.saveFile(din, FILENAME, (int) fileSize);
                         new Sender("10.10.2.2", 9981).start();
                         new Sender("10.10.3.2", 9981).start();
-                    } else {
-                        System.out.println("File name did not match");
+                        return;
                     }
                 }
             } catch (Exception e) {
-                e.printStackTrace();
+                System.out.println("Disconnect to FileServer");
+                return;
             }
         }
     }
@@ -86,6 +84,7 @@ class Sender extends Thread {
             dout.writeUTF(Client.FILENAME);
             dout.writeLong((new File("./SharedFolder/" + Client.FILENAME)).length());
             sendFile(Client.FILENAME, dout);
+            sock.close();
             return;
         } catch (Exception e) {
             e.printStackTrace();
