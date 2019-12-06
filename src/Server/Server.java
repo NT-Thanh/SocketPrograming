@@ -18,7 +18,7 @@ public class Server {
     }
 
     public void run() {
-        while(true){
+        while (true) {
             try {
                 clientSocket = ss.accept();
                 System.out.println("Connection accepted from: " + clientSocket.getInetAddress() + " port: " + clientSocket.getPort());
@@ -50,11 +50,10 @@ class ClientHandler extends Thread {
     public void run() {
         try {
 
-            DataInputStream din = new DataInputStream(clientSocket.getInputStream());
             DataOutputStream dout = new DataOutputStream(clientSocket.getOutputStream());
             BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
 
-            String msgin = "", msgout = "";
+            String  msgout = "";
             while (true) {
                 if (clientSocket.getInetAddress().toString().equals("/10.10.1.2")) {
                     msgout = br.readLine();
@@ -71,8 +70,8 @@ class ClientHandler extends Thread {
                         } else {
                             System.out.println("Wrong file name, File sending aborted");
                         }
-                    } else if (msgout.equals("@logout")) {
-                        clientSocket.close();
+                    } else {
+                        System.out.println("Unknown command");
                     }
                 }
             }
