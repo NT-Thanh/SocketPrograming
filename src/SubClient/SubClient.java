@@ -89,6 +89,7 @@ class Server {
             fos.write(buffer, 0, read);
         }
         long endTime = System.nanoTime();
+        System.out.println("Download complete at: " + endTime);
         System.out.println("Transfer duration: " + (endTime - startTime));
 
         fos.close();

@@ -61,6 +61,7 @@ class ClientHandler extends Thread {
                     if (msgout.startsWith("download")) {
                         String fileName = msgout.substring(9);
                         if (this.showFile().contains(fileName)) {
+                            System.out.println("Start download at: " + System.nanoTime());
                             dout.writeUTF(fileName);
                             dout.writeLong((new File("./SharedFolder/" + fileName)).length());
                             dout.flush();
