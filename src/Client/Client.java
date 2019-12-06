@@ -54,7 +54,7 @@ public class Client {
             fos.write(buffer, 0, read);
         }
         long endTime = System.nanoTime();
-        System.out.println("Download complete at: " + endTime);
+        System.out.println("Download complete at: " + java.time.LocalTime.now());
         System.out.println("Transfer duration: " + (endTime - startTime));
         fos.close();
     }
