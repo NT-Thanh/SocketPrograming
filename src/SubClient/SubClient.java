@@ -7,24 +7,12 @@ public class SubClient {
     private Socket sock;
 
     public SubClient() {
-        try {
-            sock = new Socket("192.168.1.2", 9981);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+
     }
 
     public void run() {
-        try {
-            DataInputStream din = new DataInputStream(sock.getInputStream());
 
-            while (true) {
-                long fileSize = din.readLong();
-            }
-        } catch (Exception e) {
-            System.out.println("Disconnect to FileServer");
-            return;
-        }
+
     }
 
     public static void main(String args[]) {
