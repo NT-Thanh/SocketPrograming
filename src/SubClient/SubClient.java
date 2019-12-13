@@ -85,7 +85,6 @@ class Server {
         while ((read = din.read(buffer, 0, Math.min(buffer.length, remaining))) > 0) {
             totalRead += read;
             remaining -= read;
-            System.out.println("read " + totalRead + " bytes.");
             fos.write(buffer, 0, read);
         }
         long endTime = System.nanoTime();
